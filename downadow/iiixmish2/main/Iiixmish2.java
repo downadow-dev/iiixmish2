@@ -61,6 +61,8 @@ public class Iiixmish2 {
     
     private static boolean th0, th1, th2, th3;
     
+    private static boolean comm = false;
+    
     static String progName = "";
     
     public static void main(String args[]) {
@@ -107,7 +109,11 @@ public class Iiixmish2 {
                             }
                         }.start();
                     }
-                } else ureg[1] = e.getKeyChar();
+                } else if(e.getKeyCode() == KeyEvent.VK_F2)
+                    comm = true;
+                 else if(e.getKeyCode() == KeyEvent.VK_F3)
+                    comm = false;
+                else ureg[1] = e.getKeyChar();
             }
             public void keyReleased(KeyEvent e) {}
             public void keyTyped(KeyEvent e) {}
@@ -118,20 +124,24 @@ public class Iiixmish2 {
             new Thread() {
                 public void run() {
                     while(true) {
-                        try {
-                            byte[] message = Files.readAllBytes(Paths.get(".comm"));
-                            if(message.length < 1) {
+                        if(comm) {
+                            try {
+                                byte[] message = Files.readAllBytes(Paths.get(".comm"));
+                                if(message.length < 1) {
+                                    Thread.sleep(10);
+                                    continue;
+                                }
+                                for(int i = 0; i < message.length; i++) {
+                                    mem[9999872 + i] = (int)message[i];
+                                }
                                 Thread.sleep(10);
-                                continue;
+                                Files.deleteIfExists(Paths.get(".comm"));
+                                Files.createFile(Paths.get(".comm"));
+                            } catch(Exception e) {
+                                e.printStackTrace();
                             }
-                            for(int i = 0; i < message.length; i++) {
-                                mem[9999872 + i] = (int)message[i];
-                            }
-                            Thread.sleep(10);
-                            Files.deleteIfExists(Paths.get(".comm"));
-                            Files.createFile(Paths.get(".comm"));
-                        } catch(Exception e) {
-                            e.printStackTrace();
+                        } else {
+                            try { Thread.sleep(100); } catch(Exception e) {}
                         }
                     }
                 }
@@ -139,16 +149,20 @@ public class Iiixmish2 {
             new Thread() {
                 public void run() {
                     while(true) {
-                        try {
-                            Thread.sleep(20);
-                            Files.deleteIfExists(Paths.get(".comm2"));
-                            Files.createFile(Paths.get(".comm2"));
-                            byte[] answer = new byte[100];
-                            for(int i = 0; i < answer.length; i++)
-                                answer[i] = (byte)mem[9999000 + i];
-                            Files.write(Paths.get(".comm2"), answer);
-                        } catch(Exception e) {
-                            e.printStackTrace();
+                        if(comm) {
+                            try {
+                                Thread.sleep(20);
+                                Files.deleteIfExists(Paths.get(".comm2"));
+                                Files.createFile(Paths.get(".comm2"));
+                                byte[] answer = new byte[100];
+                                for(int i = 0; i < answer.length; i++)
+                                    answer[i] = (byte)mem[9999000 + i];
+                                Files.write(Paths.get(".comm2"), answer);
+                            } catch(Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            try { Thread.sleep(100); } catch(Exception e) {}
                         }
                     }
                 }
