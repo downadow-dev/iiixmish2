@@ -109,11 +109,14 @@ public class Iiixmish2 {
                             }
                         }.start();
                     }
-                } else if(e.getKeyCode() == KeyEvent.VK_F2)
+                    System.err.println("full reboot");
+                } else if(e.getKeyCode() == KeyEvent.VK_F2) {
                     comm = true;
-                 else if(e.getKeyCode() == KeyEvent.VK_F3)
+                    System.err.println("communication enabled");
+                 } else if(e.getKeyCode() == KeyEvent.VK_F3) {
                     comm = false;
-                else ureg[1] = e.getKeyChar();
+                    System.err.println("communication disabled");
+                } else ureg[1] = e.getKeyChar();
             }
             public void keyReleased(KeyEvent e) {}
             public void keyTyped(KeyEvent e) {}
