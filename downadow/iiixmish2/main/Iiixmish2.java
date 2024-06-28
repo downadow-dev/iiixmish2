@@ -356,21 +356,6 @@ class DISPLAY extends JPanel {
         g.drawRect(0, 0, 640, 480); g.fillRect(0, 0, 640, 480);
         /* выбрать шрифт для ячеек видеопамяти */
         g.setFont(new java.awt.Font("Monospaced", java.awt.Font.PLAIN, 14));
-        /* рисование линий */
-        int _ii = 0;
-        for(int i = 0; i < 90; i += 5, _ii++) {
-            if(DISPLAY.ccells[i + 1900] == 0) continue;
-            else if(DISPLAY.ccells[i + 1900] == 1) g.setColor(new Color(255, 255, 255));
-            else if(DISPLAY.ccells[i + 1900] == 2) g.setColor(new Color(0, 255, 0));
-            else if(DISPLAY.ccells[i + 1900] == 3) g.setColor(new Color(0, 0, 255));
-            else if(DISPLAY.ccells[i + 1900] == 4) g.setColor(new Color(0, 120, 0));
-            else if(DISPLAY.ccells[i + 1900] == 5) g.setColor(new Color(120, 120, 120));
-            else if(DISPLAY.ccells[i + 1900] == 6) g.setColor(new Color(255, 0, 0));
-            else if(DISPLAY.ccells[i + 1900] == 7) g.setColor(new Color(255, 255, 0));
-            else g.setColor(new Color(0, 0, 0));
-            
-            g.drawLine((int)ccells[i + 1901], (int)ccells[i + 1902], (int)ccells[i + 1903], (int)ccells[i + 1904]);
-        }
         /* работа рисования ячеек видеопамяти */
         Iiixmish2.ureg[2] = 0;
         Iiixmish2.ureg[3] = 2;
