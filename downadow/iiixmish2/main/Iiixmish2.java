@@ -138,8 +138,6 @@ public class Iiixmish2 {
                                     mem[9999872 + i] = (int)message[i];
                                 }
                                 Thread.sleep(10);
-                                Files.deleteIfExists(Paths.get(".comm"));
-                                Files.createFile(Paths.get(".comm"));
                             } catch(Exception e) {
                                 e.printStackTrace();
                             }
@@ -155,8 +153,6 @@ public class Iiixmish2 {
                         if(comm) {
                             try {
                                 Thread.sleep(20);
-                                Files.deleteIfExists(Paths.get(".comm2"));
-                                Files.createFile(Paths.get(".comm2"));
                                 byte[] answer = new byte[100];
                                 for(int i = 0; i < answer.length; i++)
                                     answer[i] = (byte)mem[9999000 + i];
