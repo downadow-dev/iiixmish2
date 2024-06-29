@@ -61,7 +61,7 @@ public class Iiixmish2 {
     
     private static boolean th0, th1, th2, th3;
     
-    private static boolean comm = false;
+    private static boolean comm = true;
     
     static String progName = "";
     
