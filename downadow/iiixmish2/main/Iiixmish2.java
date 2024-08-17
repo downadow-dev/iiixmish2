@@ -100,6 +100,9 @@ public class Iiixmish2 {
         DISPLAY.fr.addKeyListener(new java.awt.event.KeyListener() {
             public void keyPressed(KeyEvent e) {
                 if(e.getKeyCode() == KeyEvent.VK_F1) {
+                    th1 = false;
+                    th2 = false;
+                    th3 = false;
                     for(int i = 0; i < treg.length; i++)
                         treg[i] = 0;
                     if(!th0) {
