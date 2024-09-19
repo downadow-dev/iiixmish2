@@ -94,7 +94,7 @@ public class Iiixmish2 {
         DISPLAY.p.setLayout(null);
         DISPLAY.p.setBounds(0, 0, 640, 480);
         DISPLAY.fr.setLayout(null);
-        DISPLAY.fr.setDefaultCloseOperation(3);
+        DISPLAY.fr.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         DISPLAY.fr.setLocationRelativeTo(null);
         DISPLAY.fr.add(DISPLAY.p);
         DISPLAY.fr.addKeyListener(new java.awt.event.KeyListener() {
