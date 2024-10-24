@@ -88,7 +88,6 @@ public class Iiixmish2 {
         DISPLAY.ccells[DISPLAY.ccells.length - 2] = 0; // параметр цвета для фона
         DISPLAY.ccells[DISPLAY.ccells.length - 1] = 1; // параметр цвета для ячеек видеопамяти
         DISPLAY.fr = new JFrame("iiixmish2");
-        DISPLAY.fr.setIconImage(new ImageIcon("icon.png").getImage());
         DISPLAY.fr.setResizable(false);
         DISPLAY.fr.setSize(640, 480);
         DISPLAY.p.setLayout(null);
@@ -182,23 +181,27 @@ public class Iiixmish2 {
             try {
                 treg[irRA] = Iiixmish2.mem[treg[pcRA]];
                 
-                /* см. также <https://ru.wikibooks.org/Makexm2c> */
-                
+                /* ra = rb + rc */
                 if(treg[irRA] == ADD) {
                     ureg[Iiixmish2.mem[treg[pcRA] - 1]] = ureg[Iiixmish2.mem[treg[pcRA] - 2]] + ureg[Iiixmish2.mem[treg[pcRA] - 3]];
                 }
+                /* ra = rb - rc */
                 else if(treg[irRA] == SUB) {
                     ureg[Iiixmish2.mem[treg[pcRA] - 1]] = ureg[Iiixmish2.mem[treg[pcRA] - 2]] - ureg[Iiixmish2.mem[treg[pcRA] - 3]];
                 }
+                /* ra = rb */
                 else if(treg[irRA] == MOV) {
                     ureg[Iiixmish2.mem[treg[pcRA] - 1]] = Iiixmish2.mem[treg[pcRA] - 2];
                 }
+                /* ra = rb (длиннее) */
                 else if(treg[irRA] == MOV2) {
                     ureg[Iiixmish2.mem[treg[pcRA] - 1]] = Integer.parseInt((""+Iiixmish2.mem[treg[pcRA] - 2]+""+Iiixmish2.mem[treg[pcRA] - 3]+""+Iiixmish2.mem[treg[pcRA] - 4]+""+Iiixmish2.mem[treg[pcRA] - 5]+""+Iiixmish2.mem[treg[pcRA] - 6]+""+Iiixmish2.mem[treg[pcRA] - 7]));
                 }
+                /* "склеивание" */
                 else if(treg[irRA] == MOV3) {
                     ureg[Iiixmish2.mem[treg[pcRA] - 1]] = Integer.parseInt((""+ureg[Iiixmish2.mem[treg[pcRA] - 2]]+""+ureg[Iiixmish2.mem[treg[pcRA] - 3]]+""+ureg[Iiixmish2.mem[treg[pcRA] - 4]]+""+ureg[Iiixmish2.mem[treg[pcRA] - 5]]+""+ureg[Iiixmish2.mem[treg[pcRA] - 6]]+""+ureg[Iiixmish2.mem[treg[pcRA] - 7]]));
                 }
+                /* сохранение/загрузка */
                 else if(treg[irRA] == ISV) {
                      Iiixmish2.mem[Integer.parseInt(""+Iiixmish2.mem[treg[pcRA] - 1]+""+Iiixmish2.mem[treg[pcRA] - 2]+""+Iiixmish2.mem[treg[pcRA] - 3]+""+Iiixmish2.mem[treg[pcRA] - 4]+""+Iiixmish2.mem[treg[pcRA] - 5]+""+Iiixmish2.mem[treg[pcRA] - 6])] = ureg[Iiixmish2.mem[treg[pcRA] - 7]];
                 }
@@ -219,9 +222,11 @@ public class Iiixmish2 {
                 else if(treg[irRA] == VLD) {
                     ureg[Iiixmish2.mem[treg[pcRA] - 1]] = DISPLAY.ccells[Integer.parseInt(""+Iiixmish2.mem[treg[pcRA] - 2]+""+Iiixmish2.mem[treg[pcRA] - 3]+""+Iiixmish2.mem[treg[pcRA] - 4]+""+Iiixmish2.mem[treg[pcRA] - 5])];
                 }
+                /* ждать заданное кол-во секунд */
                 else if(treg[irRA] == SLP) {
                     Thread.sleep(ureg[Iiixmish2.mem[treg[pcRA] - 1]] * 1000);
                 }
+                /* условные переходы */
                 else if(treg[irRA] == IFA && ureg[Iiixmish2.mem[treg[pcRA] - 1]] == ureg[Iiixmish2.mem[treg[pcRA] - 2]]) {
                     treg[pcRA] = ureg[Iiixmish2.mem[treg[pcRA] - 3]] - 1;
                 } else if(treg[irRA] == IFB && ureg[Iiixmish2.mem[treg[pcRA] - 1]] != ureg[Iiixmish2.mem[treg[pcRA] - 2]]) {
@@ -233,29 +238,34 @@ public class Iiixmish2 {
                 } else if(treg[irRA] == IFE && ureg[Iiixmish2.mem[treg[pcRA] - 1]] == ureg[Iiixmish2.mem[treg[pcRA] - 2]] && ureg[Iiixmish2.mem[treg[pcRA] - 3]] == ureg[Iiixmish2.mem[treg[pcRA] - 4]]) {
                     treg[pcRA] = ureg[Iiixmish2.mem[treg[pcRA] - 5]] - 1;
                 }
+                /* обновление экрана */
                 else if(treg[irRA] == UPDD) {
                     DISPLAY.fr.repaint();
                 }
+                /* выключение */
                 else if(treg[irRA] == OFF) {
                     System.exit(0);
                 }
+                /* частичный сброс видеопамяти */
                 else if(treg[irRA] == VRST) {
                     ureg[pcRA + 5] = 0;
                     for(int i = 0; i < 1997; i++) {
                         DISPLAY.ccells[i] = (char)ureg[pcRA + 5];
                     }
                 }
+                /* переход */
                 else if(treg[irRA] == JMP) {
                     treg[pcRA] = ureg[Iiixmish2.mem[treg[pcRA] - 1]] - 1;
                 }
+                /* завершение выполнения */
                 else if(treg[irRA] == END) {
                     break;
                 }
+                /* генерация числа */
                 else if(treg[irRA] == SEL) {
-                    /* случайности нет */
                     ureg[Iiixmish2.mem[treg[pcRA] - 1]] = new java.util.Random().nextInt(ureg[Iiixmish2.mem[treg[pcRA] - 2]]);
-                    /* случайности нет */
                 }
+                /* ещё команды */
                 else if(treg[irRA] == MUL) {
                     ureg[Iiixmish2.mem[treg[pcRA] - 1]] = ureg[Iiixmish2.mem[treg[pcRA] - 2]] * ureg[Iiixmish2.mem[treg[pcRA] - 3]];
                 }
@@ -289,6 +299,7 @@ public class Iiixmish2 {
                 else if(treg[irRA] == EXP) {
                     ureg[Iiixmish2.mem[treg[pcRA] - 1]] = (int)Math.pow(ureg[Iiixmish2.mem[treg[pcRA] - 2]], ureg[Iiixmish2.mem[treg[pcRA] - 3]]);
                 }
+                /* многопоточность */
                 else if(treg[irRA] == TH1 && !th1) {
                     final int pcra = 2, irra = 3;
                     treg[pcra] = ureg[Iiixmish2.mem[treg[pcRA] - 1]];
@@ -313,7 +324,9 @@ public class Iiixmish2 {
                             memExec(pcra, irra);
                         }
                     }.start();
-                } else if(treg[irRA] == LSHIFT)
+                }
+                /* битовые операции */
+                else if(treg[irRA] == LSHIFT)
                     ureg[Iiixmish2.mem[treg[pcRA] - 1]] = ureg[Iiixmish2.mem[treg[pcRA] - 2]] << ureg[Iiixmish2.mem[treg[pcRA] - 3]];
                 else if(treg[irRA] == RSHIFT)
                     ureg[Iiixmish2.mem[treg[pcRA] - 1]] = ureg[Iiixmish2.mem[treg[pcRA] - 2]] >> ureg[Iiixmish2.mem[treg[pcRA] - 3]];
