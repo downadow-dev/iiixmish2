@@ -55,6 +55,7 @@ public class Iiixmish2 {
     ,XOR=    -40
     ,OR=     -41
     ,AND=    -42
+    ,TIME=   -43
     ;
     // память
     static int mem[] = new int[10000000];
@@ -64,6 +65,8 @@ public class Iiixmish2 {
     private static boolean comm = true;
     
     static String progName = "";
+    
+    private static long startTime;
     
     public static void main(String args[]) {
         if(args.length == 0 || args[0].startsWith("-")) {
@@ -169,6 +172,7 @@ public class Iiixmish2 {
                 }
             }.start();
         }
+        startTime = System.currentTimeMillis();
         memExec(0, 1);
     }
     static void memExec(int pcRA, int irRA) {
@@ -336,6 +340,8 @@ public class Iiixmish2 {
                     ureg[Iiixmish2.mem[treg[pcRA] - 1]] = ureg[Iiixmish2.mem[treg[pcRA] - 2]] | ureg[Iiixmish2.mem[treg[pcRA] - 3]];
                 else if(treg[irRA] == AND)
                     ureg[Iiixmish2.mem[treg[pcRA] - 1]] = ureg[Iiixmish2.mem[treg[pcRA] - 2]] & ureg[Iiixmish2.mem[treg[pcRA] - 3]];
+                else if(treg[irRA] == TIME)
+                    ureg[Iiixmish2.mem[treg[pcRA] - 1]] = (int)(System.currentTimeMillis() - startTime);
             } catch(Exception e) {
                 System.err.println("iiixmish2: PC = " + treg[pcRA] + " (treg " + pcRA + "),  " + e);
             }
