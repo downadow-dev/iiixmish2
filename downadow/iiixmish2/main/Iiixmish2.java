@@ -56,6 +56,7 @@ public class Iiixmish2 {
     ,OR=     -41
     ,AND=    -42
     ,TIME=   -43
+    ,TRST=   -44
     ;
     // память
     static int mem[] = new int[10000000];
@@ -342,6 +343,8 @@ public class Iiixmish2 {
                     ureg[Iiixmish2.mem[treg[pcRA] - 1]] = ureg[Iiixmish2.mem[treg[pcRA] - 2]] & ureg[Iiixmish2.mem[treg[pcRA] - 3]];
                 else if(treg[irRA] == TIME)
                     ureg[Iiixmish2.mem[treg[pcRA] - 1]] = (int)(System.currentTimeMillis() - startTime);
+                else if(treg[irRA] == TRST)
+                    startTime = System.currentTimeMillis();
             } catch(Exception e) {
                 System.err.println("iiixmish2: PC = " + treg[pcRA] + " (treg " + pcRA + "),  " + e);
             }
