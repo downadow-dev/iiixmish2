@@ -31,8 +31,6 @@ public class Iiixmish2 {
     ,OFF=    -16
     ,VRST=   -17
     ,JMP=    -18
-    ,END=    -19
-    ,SEL=    -20
     ,MUL=    -21
     ,DIV=    -22
     ,LSLP=   -23
@@ -250,14 +248,6 @@ public class Iiixmish2 {
                 /* переход */
                 else if(ir == JMP) {
                     pc = ureg[Iiixmish2.mem[pc - 1]] - 1;
-                }
-                /* завершение выполнения */
-                else if(ir == END) {
-                    break;
-                }
-                /* генерация числа */
-                else if(ir == SEL) {
-                    ureg[Iiixmish2.mem[pc - 1]] = new java.util.Random().nextInt(ureg[Iiixmish2.mem[pc - 2]]);
                 }
                 /* ещё команды */
                 else if(ir == MUL) {
