@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.FileWriter;
 
 public class Iiixmish2 {
-    static int[] ureg = new int[44]; // пользовательские регистры
+    static int[] ureg = new int[31];  // регистры
     static int pc = 0, ir = 0;
     public static final byte
      NOP=    -1
@@ -40,9 +40,7 @@ public class Iiixmish2 {
     ,DEC=    -27
     ,TNP=    -28
     ,MOD=    -29
-    ,EXP=    -30
     ,MOV2=   -31
-    ,MOV3=   -35
     ,VSVAN=  -36
     ,IFE=    -37
     ,LSHIFT= -38
@@ -189,10 +187,6 @@ public class Iiixmish2 {
                 else if(ir == MOV2) {
                     ureg[Iiixmish2.mem[pc - 1]] = Integer.parseInt((""+Iiixmish2.mem[pc - 2]+""+Iiixmish2.mem[pc - 3]+""+Iiixmish2.mem[pc - 4]+""+Iiixmish2.mem[pc - 5]+""+Iiixmish2.mem[pc - 6]+""+Iiixmish2.mem[pc - 7]));
                 }
-                /* "склеивание" */
-                else if(ir == MOV3) {
-                    ureg[Iiixmish2.mem[pc - 1]] = Integer.parseInt((""+ureg[Iiixmish2.mem[pc - 2]]+""+ureg[Iiixmish2.mem[pc - 3]]+""+ureg[Iiixmish2.mem[pc - 4]]+""+ureg[Iiixmish2.mem[pc - 5]]+""+ureg[Iiixmish2.mem[pc - 6]]+""+ureg[Iiixmish2.mem[pc - 7]]));
-                }
                 /* сохранение/загрузка */
                 else if(ir == ISV) {
                      Iiixmish2.mem[Integer.parseInt(""+Iiixmish2.mem[pc - 1]+""+Iiixmish2.mem[pc - 2]+""+Iiixmish2.mem[pc - 3]+""+Iiixmish2.mem[pc - 4]+""+Iiixmish2.mem[pc - 5]+""+Iiixmish2.mem[pc - 6])] = ureg[Iiixmish2.mem[pc - 7]];
@@ -279,9 +273,6 @@ public class Iiixmish2 {
                 }
                 else if(ir == MOD) {
                     ureg[Iiixmish2.mem[pc - 1]] = ureg[Iiixmish2.mem[pc - 2]] % ureg[Iiixmish2.mem[pc - 3]];
-                }
-                else if(ir == EXP) {
-                    ureg[Iiixmish2.mem[pc - 1]] = (int)Math.pow(ureg[Iiixmish2.mem[pc - 2]], ureg[Iiixmish2.mem[pc - 3]]);
                 }
                 /* битовые операции */
                 else if(ir == LSHIFT)
