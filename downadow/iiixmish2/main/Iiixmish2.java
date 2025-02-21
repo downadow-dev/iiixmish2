@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.FileWriter;
 
 public class Iiixmish2 {
-    static int[] ureg = new int[31];  // регистры
+    static int[] ureg = new int[44];  // регистры
     static int pc = 0, ir = 0;
     public static final byte
      NOP=    -1
