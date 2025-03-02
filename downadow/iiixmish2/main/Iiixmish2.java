@@ -51,19 +51,22 @@ public class Iiixmish2 {
     ,TIME=   -43
     ,TRST=   -44
     ;
-    // память
+    
+    /* память
+       ======
+       код вне 0-65535 не может читать/писать в 0-65535;
+       код вне 0-65535, может переходить только
+       на 0, 32768, 65536-9999999;
+     */
     static int mem[] = new int[10000000];
     
     private static boolean th0;
     
-    private static boolean comm = true;
-    
     private static long startTime;
     
     public static void main(String args[]) {
-        if(args.length == 0 || args[0].startsWith("-")) {
+        if(args.length == 0) {
             System.out.println("Использование:  java downadow.iiixmish2.main.Iiixmish2 ПУТЬ_К_ПРОГРАММЕ");
-            System.out.println("                                                       [--no-communication]");
             System.exit(0);
         }
         try {
@@ -104,12 +107,6 @@ public class Iiixmish2 {
                         }.start();
                     }
                     System.err.println("full reboot");
-                } else if(e.getKeyCode() == KeyEvent.VK_F2) {
-                    comm = true;
-                    System.err.println("communication enabled");
-                 } else if(e.getKeyCode() == KeyEvent.VK_F3) {
-                    comm = false;
-                    System.err.println("communication disabled");
                 } else ureg[1] = e.getKeyChar();
             }
             public void keyReleased(KeyEvent e) {}
@@ -117,50 +114,7 @@ public class Iiixmish2 {
         });
         DISPLAY.fr.setVisible(true);
         DISPLAY.fr.repaint();
-        if(args.length > 1 && !args[1].equals("--no-communication") || args.length == 1) {
-            new Thread() {
-                public void run() {
-                    while(true) {
-                        if(comm) {
-                            try {
-                                byte[] message = Files.readAllBytes(Paths.get(".comm"));
-                                if(message.length < 1) {
-                                    Thread.sleep(10);
-                                    continue;
-                                }
-                                for(int i = 0; i < message.length; i++) {
-                                    mem[9999872 + i] = (int)message[i];
-                                }
-                                Thread.sleep(10);
-                            } catch(Exception e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            try { Thread.sleep(100); } catch(Exception e) {}
-                        }
-                    }
-                }
-            }.start();
-            new Thread() {
-                public void run() {
-                    while(true) {
-                        if(comm) {
-                            try {
-                                Thread.sleep(20);
-                                byte[] answer = new byte[100];
-                                for(int i = 0; i < answer.length; i++)
-                                    answer[i] = (byte)mem[9999000 + i];
-                                Files.write(Paths.get(".comm2"), answer);
-                            } catch(Exception e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            try { Thread.sleep(100); } catch(Exception e) {}
-                        }
-                    }
-                }
-            }.start();
-        }
+        
         startTime = System.currentTimeMillis();
         memExec();
     }
@@ -189,24 +143,81 @@ public class Iiixmish2 {
                 }
                 /* сохранение/загрузка */
                 else if(ir == ISV) {
-                     Iiixmish2.mem[Integer.parseInt(""+Iiixmish2.mem[pc - 1]+""+Iiixmish2.mem[pc - 2]+""+Iiixmish2.mem[pc - 3]+""+Iiixmish2.mem[pc - 4]+""+Iiixmish2.mem[pc - 5]+""+Iiixmish2.mem[pc - 6])] = ureg[Iiixmish2.mem[pc - 7]];
+                    int addr = Iiixmish2.mem[pc - 1] * 100000
+                        + Iiixmish2.mem[pc - 2] * 10000
+                        + Iiixmish2.mem[pc - 3] * 1000
+                        + Iiixmish2.mem[pc - 4] * 100
+                        + Iiixmish2.mem[pc - 5] * 10
+                        + Iiixmish2.mem[pc - 6];
+                    
+                    if(pc > 65535 && addr < 65536)
+                        continue; /* memory protection */
+                    
+                    Iiixmish2.mem[addr] = ureg[Iiixmish2.mem[pc - 7]];
+                    
+                    if(addr >= 9999000 && addr < 9999100) {
+                        try {
+                            byte[] answer = new byte[100];
+                            for(int i = 0; i < answer.length; i++)
+                                answer[i] = (byte)mem[9999000 + i];
+                            Files.write(Paths.get(".comm2"), answer);
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
                 else if(ir == VSVAN) {
+                    int addr = Iiixmish2.mem[pc - 1] * 1000
+                        + Iiixmish2.mem[pc - 2] * 100
+                        + Iiixmish2.mem[pc - 3] * 10
+                        + Iiixmish2.mem[pc - 4];
+                    
                     for(int i = 0; i < ("" + ureg[Iiixmish2.mem[pc - 5]]).length(); i++) {
-                        DISPLAY.ccells[Integer.parseInt(""+Iiixmish2.mem[pc - 1]+""+Iiixmish2.mem[pc - 2]+""+Iiixmish2.mem[pc - 3]+""+Iiixmish2.mem[pc - 4]) + i] = ("" + ureg[Iiixmish2.mem[pc - 5]]).toCharArray()[i];
+                        DISPLAY.ccells[addr + i] = ("" + ureg[Iiixmish2.mem[pc - 5]]).toCharArray()[i];
                     }
                 }
                 else if(ir == VSV) {
-                     DISPLAY.ccells[Integer.parseInt(""+Iiixmish2.mem[pc - 1]+""+Iiixmish2.mem[pc - 2]+""+Iiixmish2.mem[pc - 3]+""+Iiixmish2.mem[pc - 4])] = (char)ureg[Iiixmish2.mem[pc - 5]];
+                    int addr = Iiixmish2.mem[pc - 1] * 1000
+                        + Iiixmish2.mem[pc - 2] * 100
+                        + Iiixmish2.mem[pc - 3] * 10
+                        + Iiixmish2.mem[pc - 4];
+                    
+                    DISPLAY.ccells[addr] = (char)ureg[Iiixmish2.mem[pc - 5]];
                 }
                 else if(ir == LD) {
                     ureg[Iiixmish2.mem[pc - 1]] = ureg[Iiixmish2.mem[pc - 2]];
                 }
                 else if(ir == ILD) {
-                    ureg[Iiixmish2.mem[pc - 1]] = Iiixmish2.mem[Integer.parseInt(""+Iiixmish2.mem[pc - 2]+""+Iiixmish2.mem[pc - 3]+""+Iiixmish2.mem[pc - 4]+""+Iiixmish2.mem[pc - 5]+""+Iiixmish2.mem[pc - 6]+""+Iiixmish2.mem[pc - 7])];
+                    int addr = Iiixmish2.mem[pc - 2] * 100000
+                        + Iiixmish2.mem[pc - 3] * 10000
+                        + Iiixmish2.mem[pc - 4] * 1000
+                        + Iiixmish2.mem[pc - 5] * 100
+                        + Iiixmish2.mem[pc - 6] * 10
+                        + Iiixmish2.mem[pc - 7];
+                    
+                    if(pc > 65535 && addr < 65536)
+                        continue; /* memory protection */
+                    
+                    if(addr >= 9999872) {
+                        try {
+                            byte[] message = Files.readAllBytes(Paths.get(".comm"));
+                            for(int i = 0; i < message.length; i++) {
+                                mem[9999872 + i] = (int)message[i];
+                            }
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    
+                    ureg[Iiixmish2.mem[pc - 1]] = Iiixmish2.mem[addr];
                 }
                 else if(ir == VLD) {
-                    ureg[Iiixmish2.mem[pc - 1]] = DISPLAY.ccells[Integer.parseInt(""+Iiixmish2.mem[pc - 2]+""+Iiixmish2.mem[pc - 3]+""+Iiixmish2.mem[pc - 4]+""+Iiixmish2.mem[pc - 5])];
+                    int addr = Iiixmish2.mem[pc - 2] * 1000
+                        + Iiixmish2.mem[pc - 3] * 100
+                        + Iiixmish2.mem[pc - 4] * 10
+                        + Iiixmish2.mem[pc - 5];
+                    
+                    ureg[Iiixmish2.mem[pc - 1]] = DISPLAY.ccells[addr];
                 }
                 /* ждать заданное кол-во секунд */
                 else if(ir == SLP) {
@@ -214,14 +225,34 @@ public class Iiixmish2 {
                 }
                 /* условные переходы */
                 else if(ir == IFA && ureg[Iiixmish2.mem[pc - 1]] == ureg[Iiixmish2.mem[pc - 2]]) {
+                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3]] < 65536 &&
+                       ureg[Iiixmish2.mem[pc - 3]] != 0 && ureg[Iiixmish2.mem[pc - 3]] != 32768)
+                        continue; /* code protection */
+                    
                     pc = ureg[Iiixmish2.mem[pc - 3]] - 1;
                 } else if(ir == IFB && ureg[Iiixmish2.mem[pc - 1]] != ureg[Iiixmish2.mem[pc - 2]]) {
+                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3]] < 65536 &&
+                       ureg[Iiixmish2.mem[pc - 3]] != 0 && ureg[Iiixmish2.mem[pc - 3]] != 32768)
+                        continue; /* code protection */
+                    
                     pc = ureg[Iiixmish2.mem[pc - 3]] - 1;
                 } else if(ir == IFC && ureg[Iiixmish2.mem[pc - 1]] > ureg[Iiixmish2.mem[pc - 2]]) {
+                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3]] < 65536 &&
+                       ureg[Iiixmish2.mem[pc - 3]] != 0 && ureg[Iiixmish2.mem[pc - 3]] != 32768)
+                        continue; /* code protection */
+                    
                     pc = ureg[Iiixmish2.mem[pc - 3]] - 1;
                 } else if(ir == IFD && ureg[Iiixmish2.mem[pc - 1]] < ureg[Iiixmish2.mem[pc - 2]]) {
+                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3]] < 65536 &&
+                       ureg[Iiixmish2.mem[pc - 3]] != 0 && ureg[Iiixmish2.mem[pc - 3]] != 32768)
+                        continue; /* code protection */
+                    
                     pc = ureg[Iiixmish2.mem[pc - 3]] - 1;
                 } else if(ir == IFE && ureg[Iiixmish2.mem[pc - 1]] == ureg[Iiixmish2.mem[pc - 2]] && ureg[Iiixmish2.mem[pc - 3]] == ureg[Iiixmish2.mem[pc - 4]]) {
+                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 5]] < 65536 &&
+                       ureg[Iiixmish2.mem[pc - 5]] != 0 && ureg[Iiixmish2.mem[pc - 5]] != 32768)
+                        continue; /* code protection */
+                    
                     pc = ureg[Iiixmish2.mem[pc - 5]] - 1;
                 }
                 /* обновление экрана */
@@ -241,6 +272,10 @@ public class Iiixmish2 {
                 }
                 /* переход */
                 else if(ir == JMP) {
+                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 1]] < 65536 &&
+                       ureg[Iiixmish2.mem[pc - 1]] != 0 && ureg[Iiixmish2.mem[pc - 1]] != 32768)
+                        continue; /* code protection */
+                    
                     pc = ureg[Iiixmish2.mem[pc - 1]] - 1;
                 }
                 /* ещё команды */
@@ -257,9 +292,14 @@ public class Iiixmish2 {
                     Iiixmish2.mem[pc] = pc;
                 }
                 else if(ir == VSTR) {
+                    int addr = Iiixmish2.mem[pc - 1] * 1000
+                        + Iiixmish2.mem[pc - 2] * 100
+                        + Iiixmish2.mem[pc - 3] * 10
+                        + Iiixmish2.mem[pc - 4];
+                    
                     for(int i = 0; i < Iiixmish2.mem[pc - 5]; i++) {
                         ureg[5] = (char)Iiixmish2.mem[pc - 6 - i];
-                        DISPLAY.ccells[Integer.parseInt(""+Iiixmish2.mem[pc - 1]+""+Iiixmish2.mem[pc - 2]+""+Iiixmish2.mem[pc - 3]+""+Iiixmish2.mem[pc - 4]) + i] = (char)ureg[5];
+                        DISPLAY.ccells[addr + i] = (char)ureg[5];
                     }
                 }
                 else if(ir == INC) {
