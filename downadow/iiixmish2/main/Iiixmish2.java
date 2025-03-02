@@ -55,6 +55,7 @@ public class Iiixmish2 {
     /* память
        ======
        код вне 0-65535 не может читать/писать в 0-65535;
+       код вне 0-65535 не может выполнить OFF;
        код вне 0-65535, может переходить только
        на 0, 32768, 65536-9999999;
      */
@@ -139,7 +140,12 @@ public class Iiixmish2 {
                 }
                 /* ra = val (длиннее) */
                 else if(ir == MOV2) {
-                    ureg[Iiixmish2.mem[pc - 1]] = Integer.parseInt((""+Iiixmish2.mem[pc - 2]+""+Iiixmish2.mem[pc - 3]+""+Iiixmish2.mem[pc - 4]+""+Iiixmish2.mem[pc - 5]+""+Iiixmish2.mem[pc - 6]+""+Iiixmish2.mem[pc - 7]));
+                    ureg[Iiixmish2.mem[pc - 1]] = Iiixmish2.mem[pc - 2] * 100000
+                        + Iiixmish2.mem[pc - 3] * 10000
+                        + Iiixmish2.mem[pc - 4] * 1000
+                        + Iiixmish2.mem[pc - 5] * 100
+                        + Iiixmish2.mem[pc - 6] * 10
+                        + Iiixmish2.mem[pc - 7];
                 }
                 /* сохранение/загрузка */
                 else if(ir == ISV) {
@@ -260,7 +266,7 @@ public class Iiixmish2 {
                     DISPLAY.fr.repaint();
                 }
                 /* выключение */
-                else if(ir == OFF) {
+                else if(ir == OFF && pc < 65536) {
                     System.exit(0);
                 }
                 /* частичный сброс видеопамяти */
