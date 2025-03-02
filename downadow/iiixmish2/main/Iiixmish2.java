@@ -108,6 +108,18 @@ public class Iiixmish2 {
                         }.start();
                     }
                     System.err.println("full reboot");
+                } else if(e.getKeyCode() == KeyEvent.VK_F2) {
+                    byte[] memory = new byte[10000004];
+                    memory[0] = (byte) '\0';
+                    memory[1] = (byte) 'X';
+                    memory[2] = (byte) 'M';
+                    memory[3] = (byte) '2';
+                    for(int i = 4; i < 10000004; i++)
+                        memory[i] = (byte) mem[i - 4];
+                    try {
+                        Files.write(Paths.get("dump.bin"), memory);
+                        System.err.println("byte dump");
+                    } catch(Exception ex) {}
                 } else ureg[1] = e.getKeyChar();
             }
             public void keyReleased(KeyEvent e) {}
