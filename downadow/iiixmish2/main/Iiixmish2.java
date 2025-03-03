@@ -34,15 +34,11 @@ public class Iiixmish2 {
     ,MUL=    -21
     ,DIV=    -22
     ,LSLP=   -23
-    ,CUR=    -24
-    ,VSTR=   -25
     ,INC=    -26
     ,DEC=    -27
     ,TNP=    -28
     ,MOD=    -29
     ,MOV2=   -31
-    ,VSVAN=  -36
-    ,IFE=    -37
     ,LSHIFT= -38
     ,RSHIFT= -39
     ,XOR=    -40
@@ -184,16 +180,6 @@ public class Iiixmish2 {
                         }
                     }
                 }
-                else if(ir == VSVAN) {
-                    int addr = Iiixmish2.mem[pc - 1] * 1000
-                        + Iiixmish2.mem[pc - 2] * 100
-                        + Iiixmish2.mem[pc - 3] * 10
-                        + Iiixmish2.mem[pc - 4];
-                    
-                    for(int i = 0; i < ("" + ureg[Iiixmish2.mem[pc - 5]]).length(); i++) {
-                        DISPLAY.ccells[addr + i] = ("" + ureg[Iiixmish2.mem[pc - 5]]).toCharArray()[i];
-                    }
-                }
                 else if(ir == VSV) {
                     int addr = Iiixmish2.mem[pc - 1] * 1000
                         + Iiixmish2.mem[pc - 2] * 100
@@ -266,12 +252,6 @@ public class Iiixmish2 {
                         continue; /* code protection */
                     
                     pc = ureg[Iiixmish2.mem[pc - 3]] - 1;
-                } else if(ir == IFE && ureg[Iiixmish2.mem[pc - 1]] == ureg[Iiixmish2.mem[pc - 2]] && ureg[Iiixmish2.mem[pc - 3]] == ureg[Iiixmish2.mem[pc - 4]]) {
-                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 5]] < 65536 &&
-                       ureg[Iiixmish2.mem[pc - 5]] != 0 && ureg[Iiixmish2.mem[pc - 5]] != 32768)
-                        continue; /* code protection */
-                    
-                    pc = ureg[Iiixmish2.mem[pc - 5]] - 1;
                 }
                 /* обновление экрана */
                 else if(ir == UPDD) {
@@ -305,20 +285,6 @@ public class Iiixmish2 {
                 }
                 else if(ir == LSLP) {
                     Thread.sleep(ureg[Iiixmish2.mem[pc - 1]]);
-                }
-                else if(ir == CUR) {
-                    Iiixmish2.mem[pc] = pc;
-                }
-                else if(ir == VSTR) {
-                    int addr = Iiixmish2.mem[pc - 1] * 1000
-                        + Iiixmish2.mem[pc - 2] * 100
-                        + Iiixmish2.mem[pc - 3] * 10
-                        + Iiixmish2.mem[pc - 4];
-                    
-                    for(int i = 0; i < Iiixmish2.mem[pc - 5]; i++) {
-                        ureg[5] = (char)Iiixmish2.mem[pc - 6 - i];
-                        DISPLAY.ccells[addr + i] = (char)ureg[5];
-                    }
                 }
                 else if(ir == INC) {
                     ureg[Iiixmish2.mem[pc - 1]]++;
