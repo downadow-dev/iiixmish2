@@ -50,13 +50,10 @@ public class Iiixmish2 {
     
     /* память
        ======
-       код вне 0-65535 не может читать/писать в 0-65535;
+       код вне 0-65535 не может читать/прыгать/писать в 0-65535,
+       переход к 32768 возможен с OFF;
        код вне 0-65535 не может читать 9999872-9999999;
        код вне 0-65535 не может писать в 9999000-9999099;
-       действие инструкции OFF равно переходу к 32768,
-       если выполняется код вне 0-65535;
-       код вне 0-65535, может переходить только
-       на 0, 32768, 65536-9999999;
      */
     static int mem[] = new int[10000000];
     
@@ -217,26 +214,22 @@ public class Iiixmish2 {
                 }
                 /* условные переходы */
                 else if(ir == IFA && ureg[Iiixmish2.mem[pc - 1]] == ureg[Iiixmish2.mem[pc - 2]]) {
-                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3]] < 65536 &&
-                       ureg[Iiixmish2.mem[pc - 3]] != 0 && ureg[Iiixmish2.mem[pc - 3]] != 32768)
+                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3]] < 65536)
                         continue; /* code protection */
                     
                     pc = ureg[Iiixmish2.mem[pc - 3]] - 1;
                 } else if(ir == IFB && ureg[Iiixmish2.mem[pc - 1]] != ureg[Iiixmish2.mem[pc - 2]]) {
-                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3]] < 65536 &&
-                       ureg[Iiixmish2.mem[pc - 3]] != 0 && ureg[Iiixmish2.mem[pc - 3]] != 32768)
+                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3]] < 65536)
                         continue; /* code protection */
                     
                     pc = ureg[Iiixmish2.mem[pc - 3]] - 1;
                 } else if(ir == IFC && ureg[Iiixmish2.mem[pc - 1]] > ureg[Iiixmish2.mem[pc - 2]]) {
-                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3]] < 65536 &&
-                       ureg[Iiixmish2.mem[pc - 3]] != 0 && ureg[Iiixmish2.mem[pc - 3]] != 32768)
+                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3]] < 65536)
                         continue; /* code protection */
                     
                     pc = ureg[Iiixmish2.mem[pc - 3]] - 1;
                 } else if(ir == IFD && ureg[Iiixmish2.mem[pc - 1]] < ureg[Iiixmish2.mem[pc - 2]]) {
-                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3]] < 65536 &&
-                       ureg[Iiixmish2.mem[pc - 3]] != 0 && ureg[Iiixmish2.mem[pc - 3]] != 32768)
+                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3]] < 65536)
                         continue; /* code protection */
                     
                     pc = ureg[Iiixmish2.mem[pc - 3]] - 1;
@@ -259,8 +252,7 @@ public class Iiixmish2 {
                 }
                 /* переход */
                 else if(ir == JMP) {
-                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 1]] < 65536 &&
-                       ureg[Iiixmish2.mem[pc - 1]] != 0 && ureg[Iiixmish2.mem[pc - 1]] != 32768)
+                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 1]] < 65536)
                         continue; /* code protection */
                     
                     pc = ureg[Iiixmish2.mem[pc - 1]] - 1;
