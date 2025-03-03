@@ -51,7 +51,10 @@ public class Iiixmish2 {
     /* память
        ======
        код вне 0-65535 не может читать/писать в 0-65535;
-       код вне 0-65535 не может выполнить OFF;
+       код вне 0-65535 не может читать 9999872-9999999;
+       код вне 0-65535 не может писать в 9999000-9999099;
+       действие инструкции OFF равно переходу к 32768,
+       если выполняется код вне 0-65535;
        код вне 0-65535, может переходить только
        на 0, 32768, 65536-9999999;
      */
@@ -68,19 +71,16 @@ public class Iiixmish2 {
         }
         try {
             byte[] app = Files.readAllBytes(Paths.get(args[0]));
-            if(app[0] != 0 || app[1] != 0x58 || app[2] != 0x4D || app[3] != 0x32) {
-                System.err.println("iiixmish2: данный файл, похоже, не является программой для iiixmish2");
-                System.exit(1);
-            }
-            for(int i = 4; i < app.length; i++) Iiixmish2.mem[i - 4] = app[i];
+            for(int i = 0; i < app.length; i++)
+                mem[i] = app[i];
         } catch(Exception e) {}
         for(int i = 0; i < 2000; i++) {
             if(i < ureg.length) ureg[i] = 0;
-            DISPLAY.ccells[i] = 0;
+            DISPLAY.vmem[i] = 0;
         }
         /* настройка экрана */
-        DISPLAY.ccells[DISPLAY.ccells.length - 2] = 0; // параметр цвета для фона
-        DISPLAY.ccells[DISPLAY.ccells.length - 1] = 1; // параметр цвета для ячеек видеопамяти
+        DISPLAY.vmem[DISPLAY.vmem.length - 2] = 0; // параметр цвета для фона
+        DISPLAY.vmem[DISPLAY.vmem.length - 1] = 1; // параметр цвета для ячеек видеопамяти
         DISPLAY.fr = new JFrame("iiixmish2");
         DISPLAY.fr.setResizable(false);
         DISPLAY.fr.setSize(640, 480);
@@ -152,7 +152,7 @@ public class Iiixmish2 {
                         + Iiixmish2.mem[pc - 5] * 10
                         + Iiixmish2.mem[pc - 6];
                     
-                    if(pc > 65535 && addr < 65536)
+                    if(pc > 65535 && (addr < 65536 || (addr >= 9999000 && addr < 9999100)))
                         continue; /* memory protection */
                     
                     Iiixmish2.mem[addr] = ureg[Iiixmish2.mem[pc - 7]];
@@ -174,7 +174,7 @@ public class Iiixmish2 {
                         + Iiixmish2.mem[pc - 3] * 10
                         + Iiixmish2.mem[pc - 4];
                     
-                    DISPLAY.ccells[addr] = (char)ureg[Iiixmish2.mem[pc - 5]];
+                    DISPLAY.vmem[addr] = (char)ureg[Iiixmish2.mem[pc - 5]];
                 }
                 else if(ir == LD) {
                     ureg[Iiixmish2.mem[pc - 1]] = ureg[Iiixmish2.mem[pc - 2]];
@@ -187,7 +187,7 @@ public class Iiixmish2 {
                         + Iiixmish2.mem[pc - 6] * 10
                         + Iiixmish2.mem[pc - 7];
                     
-                    if(pc > 65535 && addr < 65536)
+                    if(pc > 65535 && (addr < 65536 || addr >= 9999872))
                         continue; /* memory protection */
                     
                     if(addr >= 9999872) {
@@ -209,7 +209,7 @@ public class Iiixmish2 {
                         + Iiixmish2.mem[pc - 4] * 10
                         + Iiixmish2.mem[pc - 5];
                     
-                    ureg[Iiixmish2.mem[pc - 1]] = DISPLAY.ccells[addr];
+                    ureg[Iiixmish2.mem[pc - 1]] = DISPLAY.vmem[addr];
                 }
                 /* ждать заданное кол-во секунд */
                 else if(ir == SLP) {
@@ -245,15 +245,16 @@ public class Iiixmish2 {
                 else if(ir == UPDD) {
                     DISPLAY.fr.repaint();
                 }
-                /* выключение */
-                else if(ir == OFF && pc < 65536) {
+                /* OFF */
+                else if(ir == OFF && pc < 65536)
                     System.exit(0);
-                }
+                else if(ir == OFF)
+                    pc = 32767;
                 /* частичный сброс видеопамяти */
                 else if(ir == VRST) {
                     ureg[5] = 0;
                     for(int i = 0; i < 1997; i++) {
-                        DISPLAY.ccells[i] = (char)ureg[5];
+                        DISPLAY.vmem[i] = (char)ureg[5];
                     }
                 }
                 /* переход */
@@ -311,20 +312,20 @@ public class Iiixmish2 {
 }
 class DISPLAY extends JPanel {
     /* видеопамять */
-    static char ccells[] = new char[2000];
+    static char vmem[] = new char[2000];
     /* панель и рамка */
     static DISPLAY p = new DISPLAY();
     static JFrame fr;
     
     public void paint(java.awt.Graphics g) {
         /* выбрать цвет для фона */
-        if(DISPLAY.ccells[ccells.length - 2] == 1)      g.setColor(new Color(255, 255, 255));
-        else if(DISPLAY.ccells[ccells.length - 2] == 2) g.setColor(new Color(0, 255, 0));
-        else if(DISPLAY.ccells[ccells.length - 2] == 3) g.setColor(new Color(0, 0, 255));
-        else if(DISPLAY.ccells[ccells.length - 2] == 4) g.setColor(new Color(0, 120, 0));
-        else if(DISPLAY.ccells[ccells.length - 2] == 5) g.setColor(new Color(120, 120, 120));
-        else if(DISPLAY.ccells[ccells.length - 2] == 6) g.setColor(new Color(255, 0, 0));
-        else if(DISPLAY.ccells[ccells.length - 2] == 7) g.setColor(new Color(255, 255, 0));
+        if(DISPLAY.vmem[vmem.length - 2] == 1)      g.setColor(new Color(255, 255, 255));
+        else if(DISPLAY.vmem[vmem.length - 2] == 2) g.setColor(new Color(0, 255, 0));
+        else if(DISPLAY.vmem[vmem.length - 2] == 3) g.setColor(new Color(0, 0, 255));
+        else if(DISPLAY.vmem[vmem.length - 2] == 4) g.setColor(new Color(0, 120, 0));
+        else if(DISPLAY.vmem[vmem.length - 2] == 5) g.setColor(new Color(120, 120, 120));
+        else if(DISPLAY.vmem[vmem.length - 2] == 6) g.setColor(new Color(255, 0, 0));
+        else if(DISPLAY.vmem[vmem.length - 2] == 7) g.setColor(new Color(255, 255, 0));
         else g.setColor(new Color(0, 0, 0));
         /* рисовать прямоугольник (фон) */
         g.drawRect(0, 0, 640, 480); g.fillRect(0, 0, 640, 480);
@@ -339,22 +340,22 @@ class DISPLAY extends JPanel {
                 g.setFont(new java.awt.Font("Monospaced", java.awt.Font.BOLD, 13));
             for(int ii = 0; ii < 63; ii++) {
                 /* выбрать цвет для ячеек видеопамяти */
-                if(DISPLAY.ccells[ccells.length - 1] == 1)      g.setColor(new Color(255, 255, 255));
-                else if(DISPLAY.ccells[ccells.length - 1] == 2) g.setColor(new Color(0, 255, 0));
-                else if(DISPLAY.ccells[ccells.length - 1] == 3) g.setColor(new Color(0, 0, 255));
-                else if(DISPLAY.ccells[ccells.length - 1] == 4) g.setColor(new Color(0, 120, 0));
-                else if(DISPLAY.ccells[ccells.length - 1] == 5) g.setColor(new Color(120, 120, 120));
-                else if(DISPLAY.ccells[ccells.length - 1] == 6) g.setColor(new Color(255, 0, 0));
-                else if(DISPLAY.ccells[ccells.length - 1] == 7) g.setColor(new Color(255, 255, 0));
+                if(DISPLAY.vmem[vmem.length - 1] == 1)      g.setColor(new Color(255, 255, 255));
+                else if(DISPLAY.vmem[vmem.length - 1] == 2) g.setColor(new Color(0, 255, 0));
+                else if(DISPLAY.vmem[vmem.length - 1] == 3) g.setColor(new Color(0, 0, 255));
+                else if(DISPLAY.vmem[vmem.length - 1] == 4) g.setColor(new Color(0, 120, 0));
+                else if(DISPLAY.vmem[vmem.length - 1] == 5) g.setColor(new Color(120, 120, 120));
+                else if(DISPLAY.vmem[vmem.length - 1] == 6) g.setColor(new Color(255, 0, 0));
+                else if(DISPLAY.vmem[vmem.length - 1] == 7) g.setColor(new Color(255, 255, 0));
                 else g.setColor(new Color(0, 0, 0));
                 
-                if(DISPLAY.ccells[(int)Iiixmish2.ureg[2]] < 191 && DISPLAY.ccells[(int)Iiixmish2.ureg[2]] > 0 ||
-                   DISPLAY.ccells[(int)Iiixmish2.ureg[2]] > 1039 && DISPLAY.ccells[(int)Iiixmish2.ureg[2]] < 1106 ||
-                   DISPLAY.ccells[(int)Iiixmish2.ureg[2]] > 9599 && DISPLAY.ccells[(int)Iiixmish2.ureg[2]] < 9621 ||
-                   DISPLAY.ccells[(int)Iiixmish2.ureg[2]] == '—' || DISPLAY.ccells[(int)Iiixmish2.ureg[2]] == 'Ё')
-                    g.drawString("" + DISPLAY.ccells[(int)Iiixmish2.ureg[2]], (int)Iiixmish2.ureg[3], (int)Iiixmish2.ureg[4]);
-                else if(ccells[(int)Iiixmish2.ureg[2]] > 254 && ccells[(int)Iiixmish2.ureg[2]] < 270)
-                    DISPLAY.ccells[ccells.length - 1] = (char)((int)ccells[(int)Iiixmish2.ureg[2]] - 255);
+                if(DISPLAY.vmem[(int)Iiixmish2.ureg[2]] < 191 && DISPLAY.vmem[(int)Iiixmish2.ureg[2]] > 0 ||
+                   DISPLAY.vmem[(int)Iiixmish2.ureg[2]] > 1039 && DISPLAY.vmem[(int)Iiixmish2.ureg[2]] < 1106 ||
+                   DISPLAY.vmem[(int)Iiixmish2.ureg[2]] > 9599 && DISPLAY.vmem[(int)Iiixmish2.ureg[2]] < 9621 ||
+                   DISPLAY.vmem[(int)Iiixmish2.ureg[2]] == '—' || DISPLAY.vmem[(int)Iiixmish2.ureg[2]] == 'Ё')
+                    g.drawString("" + DISPLAY.vmem[(int)Iiixmish2.ureg[2]], (int)Iiixmish2.ureg[3], (int)Iiixmish2.ureg[4]);
+                else if(vmem[(int)Iiixmish2.ureg[2]] > 254 && vmem[(int)Iiixmish2.ureg[2]] < 270)
+                    DISPLAY.vmem[vmem.length - 1] = (char)((int)vmem[(int)Iiixmish2.ureg[2]] - 255);
                 
                 Iiixmish2.ureg[2]++;
                 Iiixmish2.ureg[3] += 10;
