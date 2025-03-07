@@ -231,7 +231,7 @@ public class Iiixmish2 {
                     
                     ureg[Iiixmish2.mem[pc - 1]] = DISPLAY.vmem[addr];
                 }
-                else if(ir == VLD) {
+                else if(ir == RVLD) {
                     int addr = ureg[Iiixmish2.mem[pc - 2]];
                     
                     ureg[Iiixmish2.mem[pc - 1]] = DISPLAY.vmem[addr];
