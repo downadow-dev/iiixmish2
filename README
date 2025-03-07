@@ -15,7 +15,7 @@ Downadow — автор iiixmish2.
 
 Использование:
 
-    java downadow.iiixmish2.main.Iiixmish2 ПУТЬ_К_ПРОГРАММЕ [--no-communication]
+    java downadow.iiixmish2.main.Iiixmish2 ПУТЬ_К_ОБРАЗУ
 
 
 Не обращайте внимания на даты изменения, создания, доступа; они

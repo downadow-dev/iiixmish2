@@ -38,7 +38,6 @@ public class Iiixmish2 {
     ,DEC=    -27
     ,TNP=    -28
     ,MOD=    -29
-    ,MOV2=   -31
     ,LSHIFT= -38
     ,RSHIFT= -39
     ,XOR=    -40
@@ -46,6 +45,10 @@ public class Iiixmish2 {
     ,AND=    -42
     ,TIME=   -43
     ,TRST=   -44
+    ,RISV=   -45
+    ,RVSV=   -46
+    ,RILD=   -47
+    ,RVLD=   -48
     ;
     
     /* память
@@ -63,13 +66,15 @@ public class Iiixmish2 {
     
     public static void main(String args[]) {
         if(args.length == 0) {
-            System.out.println("Использование:  java downadow.iiixmish2.main.Iiixmish2 ПУТЬ_К_ПРОГРАММЕ");
+            System.out.println("Использование:  java downadow.iiixmish2.main.Iiixmish2 ПУТЬ_К_ОБРАЗУ");
             System.exit(0);
         }
         try {
-            byte[] app = Files.readAllBytes(Paths.get(args[0]));
-            for(int i = 0; i < app.length; i++)
-                mem[i] = app[i];
+            Scanner sc = new Scanner(new File(args[0]));
+            String str;
+            for(int i = 0; sc.hasNextLine(); i++)
+                mem[i] = Integer.parseInt(sc.nextLine());
+            sc.close();
         } catch(Exception e) {}
         for(int i = 0; i < 2000; i++) {
             if(i < ureg.length) ureg[i] = 0;
@@ -131,28 +136,33 @@ public class Iiixmish2 {
                 else if(ir == MOV) {
                     ureg[Iiixmish2.mem[pc - 1]] = Iiixmish2.mem[pc - 2];
                 }
-                /* ra = val (длиннее) */
-                else if(ir == MOV2) {
-                    ureg[Iiixmish2.mem[pc - 1]] = Iiixmish2.mem[pc - 2] * 100000
-                        + Iiixmish2.mem[pc - 3] * 10000
-                        + Iiixmish2.mem[pc - 4] * 1000
-                        + Iiixmish2.mem[pc - 5] * 100
-                        + Iiixmish2.mem[pc - 6] * 10
-                        + Iiixmish2.mem[pc - 7];
-                }
                 /* сохранение/загрузка */
                 else if(ir == ISV) {
-                    int addr = Iiixmish2.mem[pc - 1] * 100000
-                        + Iiixmish2.mem[pc - 2] * 10000
-                        + Iiixmish2.mem[pc - 3] * 1000
-                        + Iiixmish2.mem[pc - 4] * 100
-                        + Iiixmish2.mem[pc - 5] * 10
-                        + Iiixmish2.mem[pc - 6];
+                    int addr = Iiixmish2.mem[pc - 1];
                     
                     if(pc > 65535 && (addr < 65536 || (addr >= 9999000 && addr < 9999100)))
                         continue; /* memory protection */
                     
-                    Iiixmish2.mem[addr] = ureg[Iiixmish2.mem[pc - 7]];
+                    Iiixmish2.mem[addr] = ureg[Iiixmish2.mem[pc - 2]];
+                    
+                    if(addr >= 9999000 && addr < 9999100) {
+                        try {
+                            byte[] answer = new byte[100];
+                            for(int i = 0; i < answer.length; i++)
+                                answer[i] = (byte)mem[9999000 + i];
+                            Files.write(Paths.get(".comm2"), answer);
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                else if(ir == RISV) {
+                    int addr = ureg[Iiixmish2.mem[pc - 1]];
+                    
+                    if(pc > 65535 && (addr < 65536 || (addr >= 9999000 && addr < 9999100)))
+                        continue; /* memory protection */
+                    
+                    Iiixmish2.mem[addr] = ureg[Iiixmish2.mem[pc - 2]];
                     
                     if(addr >= 9999000 && addr < 9999100) {
                         try {
@@ -166,23 +176,39 @@ public class Iiixmish2 {
                     }
                 }
                 else if(ir == VSV) {
-                    int addr = Iiixmish2.mem[pc - 1] * 1000
-                        + Iiixmish2.mem[pc - 2] * 100
-                        + Iiixmish2.mem[pc - 3] * 10
-                        + Iiixmish2.mem[pc - 4];
+                    int addr = Iiixmish2.mem[pc - 1];
                     
-                    DISPLAY.vmem[addr] = (char)ureg[Iiixmish2.mem[pc - 5]];
+                    DISPLAY.vmem[addr] = (char)ureg[Iiixmish2.mem[pc - 2]];
+                }
+                else if(ir == RVSV) {
+                    int addr = ureg[Iiixmish2.mem[pc - 1]];
+                    
+                    DISPLAY.vmem[addr] = (char)ureg[Iiixmish2.mem[pc - 2]];
                 }
                 else if(ir == LD) {
                     ureg[Iiixmish2.mem[pc - 1]] = ureg[Iiixmish2.mem[pc - 2]];
                 }
                 else if(ir == ILD) {
-                    int addr = Iiixmish2.mem[pc - 2] * 100000
-                        + Iiixmish2.mem[pc - 3] * 10000
-                        + Iiixmish2.mem[pc - 4] * 1000
-                        + Iiixmish2.mem[pc - 5] * 100
-                        + Iiixmish2.mem[pc - 6] * 10
-                        + Iiixmish2.mem[pc - 7];
+                    int addr = Iiixmish2.mem[pc - 2];
+                    
+                    if(pc > 65535 && (addr < 65536 || addr >= 9999872))
+                        continue; /* memory protection */
+                    
+                    if(addr >= 9999872) {
+                        try {
+                            byte[] message = Files.readAllBytes(Paths.get(".comm"));
+                            for(int i = 0; i < message.length; i++) {
+                                mem[9999872 + i] = (int)message[i];
+                            }
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    
+                    ureg[Iiixmish2.mem[pc - 1]] = Iiixmish2.mem[addr];
+                }
+                else if(ir == RILD) {
+                    int addr = ureg[Iiixmish2.mem[pc - 2]];
                     
                     if(pc > 65535 && (addr < 65536 || addr >= 9999872))
                         continue; /* memory protection */
@@ -201,10 +227,12 @@ public class Iiixmish2 {
                     ureg[Iiixmish2.mem[pc - 1]] = Iiixmish2.mem[addr];
                 }
                 else if(ir == VLD) {
-                    int addr = Iiixmish2.mem[pc - 2] * 1000
-                        + Iiixmish2.mem[pc - 3] * 100
-                        + Iiixmish2.mem[pc - 4] * 10
-                        + Iiixmish2.mem[pc - 5];
+                    int addr = Iiixmish2.mem[pc - 2];
+                    
+                    ureg[Iiixmish2.mem[pc - 1]] = DISPLAY.vmem[addr];
+                }
+                else if(ir == VLD) {
+                    int addr = ureg[Iiixmish2.mem[pc - 2]];
                     
                     ureg[Iiixmish2.mem[pc - 1]] = DISPLAY.vmem[addr];
                 }
