@@ -71,7 +71,6 @@ public class Iiixmish2 {
         }
         try {
             Scanner sc = new Scanner(new File(args[0]));
-            String str;
             for(int i = 0; sc.hasNextLine(); i++)
                 mem[i] = Integer.parseInt(sc.nextLine());
             sc.close();
