@@ -146,10 +146,10 @@ public class Iiixmish2 {
                     
                     if(addr >= 9999000 && addr < 9999100) {
                         try {
-                            byte[] answer = new byte[100];
-                            for(int i = 0; i < answer.length; i++)
-                                answer[i] = (byte)mem[9999000 + i];
-                            Files.write(Paths.get(".comm2"), answer);
+                            FileWriter comm2 = new FileWriter(".comm2");
+                            for(int i = 9999000; i < 9999100; i++)
+                                comm2.write(mem[i] + "\n");
+                            comm2.close();
                         } catch(Exception e) {
                             e.printStackTrace();
                         }
@@ -165,10 +165,10 @@ public class Iiixmish2 {
                     
                     if(addr >= 9999000 && addr < 9999100) {
                         try {
-                            byte[] answer = new byte[100];
-                            for(int i = 0; i < answer.length; i++)
-                                answer[i] = (byte)mem[9999000 + i];
-                            Files.write(Paths.get(".comm2"), answer);
+                            FileWriter comm2 = new FileWriter(".comm2");
+                            for(int i = 9999000; i < 9999100; i++)
+                                comm2.write(mem[i] + "\n");
+                            comm2.close();
                         } catch(Exception e) {
                             e.printStackTrace();
                         }
@@ -195,10 +195,10 @@ public class Iiixmish2 {
                     
                     if(addr >= 9999872) {
                         try {
-                            byte[] message = Files.readAllBytes(Paths.get(".comm"));
-                            for(int i = 0; i < message.length; i++) {
-                                mem[9999872 + i] = (int)message[i];
-                            }
+                            Scanner comm = new Scanner(new File(".comm"));
+                            for(int i = 9999872; i < 10000000 && comm.hasNextLine(); i++)
+                                mem[i] = Integer.parseInt(comm.nextLine());
+                            comm.close();
                         } catch(Exception e) {
                             e.printStackTrace();
                         }
@@ -214,10 +214,10 @@ public class Iiixmish2 {
                     
                     if(addr >= 9999872) {
                         try {
-                            byte[] message = Files.readAllBytes(Paths.get(".comm"));
-                            for(int i = 0; i < message.length; i++) {
-                                mem[9999872 + i] = (int)message[i];
-                            }
+                            Scanner comm = new Scanner(new File(".comm"));
+                            for(int i = 9999872; i < 10000000 && comm.hasNextLine(); i++)
+                                mem[i] = Integer.parseInt(comm.nextLine());
+                            comm.close();
                         } catch(Exception e) {
                             e.printStackTrace();
                         }
