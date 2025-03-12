@@ -84,9 +84,9 @@ public class Iiixmish2 {
         DISPLAY.vmem[DISPLAY.vmem.length - 1] = 1; // параметр цвета для ячеек видеопамяти
         DISPLAY.fr = new JFrame("iiixmish2");
         DISPLAY.fr.setResizable(false);
-        DISPLAY.fr.setSize(640, 480);
+        DISPLAY.fr.setSize(572, 576);
         DISPLAY.p.setLayout(null);
-        DISPLAY.p.setBounds(0, 0, 640, 480);
+        DISPLAY.p.setBounds(0, 0, 572, 576);
         DISPLAY.fr.setLayout(null);
         DISPLAY.fr.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         DISPLAY.fr.setLocationRelativeTo(null);
@@ -347,13 +347,13 @@ class DISPLAY extends JPanel {
         else if(DISPLAY.vmem[vmem.length - 2] == 7) g.setColor(new Color(255, 255, 0));
         else g.setColor(new Color(0, 0, 0));
         /* рисовать прямоугольник (фон) */
-        g.drawRect(0, 0, 640, 480); g.fillRect(0, 0, 640, 480);
+        g.fillRect(0, 0, 572, 576);
         /* выбрать шрифт для ячеек видеопамяти */
         g.setFont(new java.awt.Font("Monospaced", java.awt.Font.PLAIN, 14));
         /* работа рисования ячеек видеопамяти */
         Iiixmish2.ureg[2] = 0;
         Iiixmish2.ureg[3] = 2;
-        Iiixmish2.ureg[4] = 10;
+        Iiixmish2.ureg[4] = 15;
         for(int i = 0; i < 30; i++) {
             if(i == 29)
                 g.setFont(new java.awt.Font("Monospaced", java.awt.Font.BOLD, 13));
@@ -377,10 +377,10 @@ class DISPLAY extends JPanel {
                     DISPLAY.vmem[vmem.length - 1] = (char)((int)vmem[(int)Iiixmish2.ureg[2]] - 255);
                 
                 Iiixmish2.ureg[2]++;
-                Iiixmish2.ureg[3] += 10;
+                Iiixmish2.ureg[3] += 9;
             }
             Iiixmish2.ureg[3] = 2;
-            Iiixmish2.ureg[4] += 15;
+            Iiixmish2.ureg[4] += 18;
         }
     }
     
