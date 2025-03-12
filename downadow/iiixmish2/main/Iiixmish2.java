@@ -355,8 +355,6 @@ class DISPLAY extends JPanel {
         Iiixmish2.ureg[3] = 2;
         Iiixmish2.ureg[4] = 15;
         for(int i = 0; i < 30; i++) {
-            if(i == 29)
-                g.setFont(new java.awt.Font("Monospaced", java.awt.Font.BOLD, 13));
             for(int ii = 0; ii < 63; ii++) {
                 /* выбрать цвет для ячеек видеопамяти */
                 if(DISPLAY.vmem[vmem.length - 1] == 1)      g.setColor(new Color(255, 255, 255));
