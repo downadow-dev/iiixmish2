@@ -60,8 +60,6 @@ public class Iiixmish2 {
      */
     static int mem[] = new int[10000000];
     
-    private static boolean th0;
-    
     private static long startTime;
     
     public static void main(String args[]) {
@@ -94,17 +92,27 @@ public class Iiixmish2 {
         DISPLAY.fr.addKeyListener(new java.awt.event.KeyListener() {
             public void keyPressed(KeyEvent e) {
                 if(e.getKeyCode() == KeyEvent.VK_F1) {
-                    pc = 0;
-                    ir = 0;
+                    System.out.println("===============================");
                     
-                    if(!th0) {
-                        new Thread() {
-                            public void run() {
-                                memExec();
-                            }
-                        }.start();
+                    System.out.println("PC: " + pc);
+                    pc = mem.length;
+                    System.out.println("Registers:");
+                    for(int i = 0; i < ureg.length; i++)
+                        System.out.println("\t" + i + "\t" + ureg[i]);
+                    System.out.println("Time: " + (int)(System.currentTimeMillis() - startTime));
+                    
+                    try {
+                        FileWriter fw = new FileWriter("dump");
+                        for(int i = 0; i < mem.length; i++)
+                            fw.write(mem[i] + "\n");
+                        fw.close();
+                    } catch(Exception ex) {
+                        ex.printStackTrace();
                     }
-                    System.err.println("full reboot");
+                    
+                    System.out.println("===============================");
+                    
+                    System.exit(0);
                 } else ureg[1] = e.getKeyChar();
             }
             public void keyReleased(KeyEvent e) {}
@@ -117,8 +125,6 @@ public class Iiixmish2 {
         memExec();
     }
     static void memExec() {
-        th0 = true;
-        
         for(; pc < Iiixmish2.mem.length; pc++) {
             try {
                 ir = Iiixmish2.mem[pc];
@@ -273,7 +279,7 @@ public class Iiixmish2 {
                 /* частичный сброс видеопамяти */
                 else if(ir == VRST) {
                     ureg[5] = 0;
-                    for(int i = 0; i < 1997; i++) {
+                    for(int i = 0; i < 1890; i++) {
                         DISPLAY.vmem[i] = (char)ureg[5];
                     }
                 }
@@ -325,8 +331,6 @@ public class Iiixmish2 {
                 System.err.println("iiixmish2: PC = " + pc + ",  " + e);
             }
         }
-        
-        th0 = false;
     }
 }
 class DISPLAY extends JPanel {
