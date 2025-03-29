@@ -22,7 +22,6 @@ public class Iiixmish2 {
     ,LD=     -7
     ,ISV=    -8
     ,VSV=    -9
-    ,SLP=    -10
     ,IFA=    -11
     ,IFB=    -12
     ,IFC=    -13
@@ -33,7 +32,6 @@ public class Iiixmish2 {
     ,JMP=    -18
     ,MUL=    -21
     ,DIV=    -22
-    ,LSLP=   -23
     ,INC=    -26
     ,DEC=    -27
     ,TNP=    -28
@@ -129,8 +127,10 @@ public class Iiixmish2 {
             try {
                 ir = Iiixmish2.mem[pc];
                 
+                if(ir == NOP)
+                    Thread.sleep(1);
                 /* ra = rb + rc */
-                if(ir == ADD) {
+                else if(ir == ADD) {
                     ureg[Iiixmish2.mem[pc - 1]] = ureg[Iiixmish2.mem[pc - 2]] + ureg[Iiixmish2.mem[pc - 3]];
                 }
                 /* ra = rb - rc */
@@ -241,10 +241,6 @@ public class Iiixmish2 {
                     
                     ureg[Iiixmish2.mem[pc - 1]] = DISPLAY.vmem[addr];
                 }
-                /* ждать заданное кол-во секунд */
-                else if(ir == SLP) {
-                    Thread.sleep(ureg[Iiixmish2.mem[pc - 1]] * 1000);
-                }
                 /* условные переходы */
                 else if(ir == IFA && ureg[Iiixmish2.mem[pc - 1]] == ureg[Iiixmish2.mem[pc - 2]]) {
                     if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3]] < 65536)
@@ -296,9 +292,6 @@ public class Iiixmish2 {
                 }
                 else if(ir == DIV) {
                     ureg[Iiixmish2.mem[pc - 1]] = ureg[Iiixmish2.mem[pc - 2]] / ureg[Iiixmish2.mem[pc - 3]];
-                }
-                else if(ir == LSLP) {
-                    Thread.sleep(ureg[Iiixmish2.mem[pc - 1]]);
                 }
                 else if(ir == INC) {
                     ureg[Iiixmish2.mem[pc - 1]]++;
