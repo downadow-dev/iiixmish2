@@ -131,15 +131,15 @@ public class Iiixmish2 {
                     Thread.sleep(1);
                 /* ra = rb + rc */
                 else if(ir == ADD) {
-                    ureg[Iiixmish2.mem[pc - 1]] = ureg[Iiixmish2.mem[pc - 2]] + ureg[Iiixmish2.mem[pc - 3]];
+                    ureg[Iiixmish2.mem[pc - 1] & 0x3F] = ureg[Iiixmish2.mem[pc - 2] & 0x3F] + ureg[Iiixmish2.mem[pc - 3] & 0x3F];
                 }
                 /* ra = rb - rc */
                 else if(ir == SUB) {
-                    ureg[Iiixmish2.mem[pc - 1]] = ureg[Iiixmish2.mem[pc - 2]] - ureg[Iiixmish2.mem[pc - 3]];
+                    ureg[Iiixmish2.mem[pc - 1] & 0x3F] = ureg[Iiixmish2.mem[pc - 2] & 0x3F] - ureg[Iiixmish2.mem[pc - 3] & 0x3F];
                 }
                 /* ra = val */
                 else if(ir == MOV) {
-                    ureg[Iiixmish2.mem[pc - 1]] = Iiixmish2.mem[pc - 2];
+                    ureg[Iiixmish2.mem[pc - 1] & 0x3F] = Iiixmish2.mem[pc - 2];
                 }
                 /* сохранение/загрузка */
                 else if(ir == ISV) {
@@ -148,7 +148,7 @@ public class Iiixmish2 {
                     if(pc > 65535 && (addr < 65536 || (addr >= 9999000 && addr < 9999100)))
                         continue; /* memory protection */
                     
-                    Iiixmish2.mem[addr] = ureg[Iiixmish2.mem[pc - 2]];
+                    Iiixmish2.mem[addr] = ureg[Iiixmish2.mem[pc - 2] & 0x3F];
                     
                     if(addr >= 9999000 && addr < 9999100) {
                         try {
@@ -167,7 +167,7 @@ public class Iiixmish2 {
                     if(pc > 65535 && (addr < 65536 || (addr >= 9999000 && addr < 9999100)))
                         continue; /* memory protection */
                     
-                    Iiixmish2.mem[addr] = ureg[Iiixmish2.mem[pc - 2]];
+                    Iiixmish2.mem[addr] = ureg[Iiixmish2.mem[pc - 2] & 0x3F];
                     
                     if(addr >= 9999000 && addr < 9999100) {
                         try {
@@ -181,17 +181,17 @@ public class Iiixmish2 {
                     }
                 }
                 else if(ir == VSV) {
-                    int addr = Iiixmish2.mem[pc - 1];
+                    int addr = Iiixmish2.mem[pc - 1] & 0x7FF;
                     
                     DISPLAY.vmem[addr] = (char)ureg[Iiixmish2.mem[pc - 2]];
                 }
                 else if(ir == RVSV) {
-                    int addr = ureg[Iiixmish2.mem[pc - 1]];
+                    int addr = ureg[Iiixmish2.mem[pc - 1] & 0x3F];
                     
-                    DISPLAY.vmem[addr] = (char)ureg[Iiixmish2.mem[pc - 2]];
+                    DISPLAY.vmem[addr] = (char)ureg[Iiixmish2.mem[pc - 2] & 0x3F];
                 }
                 else if(ir == LD) {
-                    ureg[Iiixmish2.mem[pc - 1]] = ureg[Iiixmish2.mem[pc - 2]];
+                    ureg[Iiixmish2.mem[pc - 1] & 0x3F] = ureg[Iiixmish2.mem[pc - 2] & 0x3F];
                 }
                 else if(ir == ILD) {
                     int addr = Iiixmish2.mem[pc - 2];
@@ -210,7 +210,7 @@ public class Iiixmish2 {
                         }
                     }
                     
-                    ureg[Iiixmish2.mem[pc - 1]] = Iiixmish2.mem[addr];
+                    ureg[Iiixmish2.mem[pc - 1] & 0x3F] = Iiixmish2.mem[addr];
                 }
                 else if(ir == RILD) {
                     int addr = ureg[Iiixmish2.mem[pc - 2]];
@@ -229,39 +229,39 @@ public class Iiixmish2 {
                         }
                     }
                     
-                    ureg[Iiixmish2.mem[pc - 1]] = Iiixmish2.mem[addr];
+                    ureg[Iiixmish2.mem[pc - 1] & 0x3F] = Iiixmish2.mem[addr];
                 }
                 else if(ir == VLD) {
-                    int addr = Iiixmish2.mem[pc - 2];
+                    int addr = Iiixmish2.mem[pc - 2] & 0x7FF;
                     
-                    ureg[Iiixmish2.mem[pc - 1]] = DISPLAY.vmem[addr];
+                    ureg[Iiixmish2.mem[pc - 1] & 0x3F] = DISPLAY.vmem[addr];
                 }
                 else if(ir == RVLD) {
                     int addr = ureg[Iiixmish2.mem[pc - 2]];
                     
-                    ureg[Iiixmish2.mem[pc - 1]] = DISPLAY.vmem[addr];
+                    ureg[Iiixmish2.mem[pc - 1] & 0x3F] = DISPLAY.vmem[addr];
                 }
                 /* условные переходы */
-                else if(ir == IFA && ureg[Iiixmish2.mem[pc - 1]] == ureg[Iiixmish2.mem[pc - 2]]) {
-                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3]] < 65536)
+                else if(ir == IFA && ureg[Iiixmish2.mem[pc - 1] & 0x3F] == ureg[Iiixmish2.mem[pc - 2] & 0x3F]) {
+                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3] & 0x3F] < 65536)
                         continue; /* code protection */
                     
-                    pc = ureg[Iiixmish2.mem[pc - 3]] - 1;
-                } else if(ir == IFB && ureg[Iiixmish2.mem[pc - 1]] != ureg[Iiixmish2.mem[pc - 2]]) {
-                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3]] < 65536)
+                    pc = ureg[Iiixmish2.mem[pc - 3] & 0x3F] - 1;
+                } else if(ir == IFB && ureg[Iiixmish2.mem[pc - 1] & 0x3F] != ureg[Iiixmish2.mem[pc - 2] & 0x3F]) {
+                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3] & 0x3F] < 65536)
                         continue; /* code protection */
                     
-                    pc = ureg[Iiixmish2.mem[pc - 3]] - 1;
-                } else if(ir == IFC && ureg[Iiixmish2.mem[pc - 1]] > ureg[Iiixmish2.mem[pc - 2]]) {
-                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3]] < 65536)
+                    pc = ureg[Iiixmish2.mem[pc - 3] & 0x3F] - 1;
+                } else if(ir == IFC && ureg[Iiixmish2.mem[pc - 1] & 0x3F] > ureg[Iiixmish2.mem[pc - 2] & 0x3F]) {
+                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3] & 0x3F] < 65536)
                         continue; /* code protection */
                     
-                    pc = ureg[Iiixmish2.mem[pc - 3]] - 1;
-                } else if(ir == IFD && ureg[Iiixmish2.mem[pc - 1]] < ureg[Iiixmish2.mem[pc - 2]]) {
-                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3]] < 65536)
+                    pc = ureg[Iiixmish2.mem[pc - 3] & 0x3F] - 1;
+                } else if(ir == IFD && ureg[Iiixmish2.mem[pc - 1] & 0x3F] < ureg[Iiixmish2.mem[pc - 2] & 0x3F]) {
+                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 3] & 0x3F] < 65536)
                         continue; /* code protection */
                     
-                    pc = ureg[Iiixmish2.mem[pc - 3]] - 1;
+                    pc = ureg[Iiixmish2.mem[pc - 3] & 0x3F] - 1;
                 }
                 /* обновление экрана */
                 else if(ir == UPDD) {
@@ -281,43 +281,43 @@ public class Iiixmish2 {
                 }
                 /* переход */
                 else if(ir == JMP) {
-                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 1]] < 65536)
+                    if(pc > 65535 && ureg[Iiixmish2.mem[pc - 1] & 0x3F] < 65536)
                         continue; /* code protection */
                     
-                    pc = ureg[Iiixmish2.mem[pc - 1]] - 1;
+                    pc = ureg[Iiixmish2.mem[pc - 1] & 0x3F] - 1;
                 }
                 /* ещё команды */
                 else if(ir == MUL) {
-                    ureg[Iiixmish2.mem[pc - 1]] = ureg[Iiixmish2.mem[pc - 2]] * ureg[Iiixmish2.mem[pc - 3]];
+                    ureg[Iiixmish2.mem[pc - 1] & 0x3F] = ureg[Iiixmish2.mem[pc - 2] & 0x3F] * ureg[Iiixmish2.mem[pc - 3] & 0x3F];
                 }
                 else if(ir == DIV) {
-                    ureg[Iiixmish2.mem[pc - 1]] = ureg[Iiixmish2.mem[pc - 2]] / ureg[Iiixmish2.mem[pc - 3]];
+                    ureg[Iiixmish2.mem[pc - 1] & 0x3F] = ureg[Iiixmish2.mem[pc - 2] & 0x3F] / ureg[Iiixmish2.mem[pc - 3] & 0x3F];
                 }
                 else if(ir == INC) {
-                    ureg[Iiixmish2.mem[pc - 1]]++;
+                    ureg[Iiixmish2.mem[pc - 1] & 0x3F]++;
                 }
                 else if(ir == DEC) {
-                    ureg[Iiixmish2.mem[pc - 1]]--;
+                    ureg[Iiixmish2.mem[pc - 1] & 0x3F]--;
                 }
                 else if(ir == TNP) {
-                    ureg[Iiixmish2.mem[pc - 1]] = -ureg[Iiixmish2.mem[pc - 1]];
+                    ureg[Iiixmish2.mem[pc - 1] & 0x3F] = -ureg[Iiixmish2.mem[pc - 1] & 0x3F];
                 }
                 else if(ir == MOD) {
-                    ureg[Iiixmish2.mem[pc - 1]] = ureg[Iiixmish2.mem[pc - 2]] % ureg[Iiixmish2.mem[pc - 3]];
+                    ureg[Iiixmish2.mem[pc - 1] & 0x3F] = ureg[Iiixmish2.mem[pc - 2] & 0x3F] % ureg[Iiixmish2.mem[pc - 3] & 0x3F];
                 }
                 /* битовые операции */
                 else if(ir == LSHIFT)
-                    ureg[Iiixmish2.mem[pc - 1]] = ureg[Iiixmish2.mem[pc - 2]] << ureg[Iiixmish2.mem[pc - 3]];
+                    ureg[Iiixmish2.mem[pc - 1] & 0x3F] = ureg[Iiixmish2.mem[pc - 2] & 0x3F] << ureg[Iiixmish2.mem[pc - 3] & 0x3F];
                 else if(ir == RSHIFT)
-                    ureg[Iiixmish2.mem[pc - 1]] = ureg[Iiixmish2.mem[pc - 2]] >> ureg[Iiixmish2.mem[pc - 3]];
+                    ureg[Iiixmish2.mem[pc - 1] & 0x3F] = ureg[Iiixmish2.mem[pc - 2] & 0x3F] >> ureg[Iiixmish2.mem[pc - 3] & 0x3F];
                 else if(ir == XOR)
-                    ureg[Iiixmish2.mem[pc - 1]] = ureg[Iiixmish2.mem[pc - 2]] ^ ureg[Iiixmish2.mem[pc - 3]];
+                    ureg[Iiixmish2.mem[pc - 1] & 0x3F] = ureg[Iiixmish2.mem[pc - 2] & 0x3F] ^ ureg[Iiixmish2.mem[pc - 3] & 0x3F];
                 else if(ir == OR)
-                    ureg[Iiixmish2.mem[pc - 1]] = ureg[Iiixmish2.mem[pc - 2]] | ureg[Iiixmish2.mem[pc - 3]];
+                    ureg[Iiixmish2.mem[pc - 1] & 0x3F] = ureg[Iiixmish2.mem[pc - 2] & 0x3F] | ureg[Iiixmish2.mem[pc - 3] & 0x3F];
                 else if(ir == AND)
-                    ureg[Iiixmish2.mem[pc - 1]] = ureg[Iiixmish2.mem[pc - 2]] & ureg[Iiixmish2.mem[pc - 3]];
+                    ureg[Iiixmish2.mem[pc - 1] & 0x3F] = ureg[Iiixmish2.mem[pc - 2] & 0x3F] & ureg[Iiixmish2.mem[pc - 3] & 0x3F];
                 else if(ir == TIME)
-                    ureg[Iiixmish2.mem[pc - 1]] = (int)(System.currentTimeMillis() - startTime);
+                    ureg[Iiixmish2.mem[pc - 1] & 0x3F] = (int)(System.currentTimeMillis() - startTime);
                 else if(ir == TRST)
                     startTime = System.currentTimeMillis();
             } catch(Exception e) {
