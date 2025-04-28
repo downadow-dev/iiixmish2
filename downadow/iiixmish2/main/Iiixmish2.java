@@ -22,6 +22,7 @@ public class Iiixmish2 {
     ,LD=     -7
     ,ISV=    -8
     ,VSV=    -9
+    ,CALL=   -10
     ,IFA=    -11
     ,IFB=    -12
     ,IFC=    -13
@@ -285,6 +286,14 @@ public class Iiixmish2 {
                         continue; /* code protection */
                     
                     pc = ureg[Iiixmish2.mem[pc - 1] & 0x3F] - 1;
+                }
+                else if(ir == CALL) {
+                    if(pc > 65535 && Iiixmish2.mem[pc - 2] < 65536)
+                        continue; /* code protection */
+                    
+                    if((Iiixmish2.mem[pc - 1] & 0x3F) != 0)
+                        ureg[Iiixmish2.mem[pc - 1] & 0x3F] = pc + 1;
+                    pc = Iiixmish2.mem[pc - 2] - 1;
                 }
                 /* ещё команды */
                 else if(ir == MUL) {
