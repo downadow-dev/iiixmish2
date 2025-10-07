@@ -124,7 +124,7 @@ public class Iiixmish2 {
         for(; pc < Iiixmish2.mem.length; pc++) {
             try {
                 if(pc >= unpriv) ticks++;
-                if(pc >= unpriv && ticks >= 100000) {
+                if(pc >= unpriv && ticks >= 5000) {
                     offPC = pc;
                     savedflag = flag;
                     pc = interrupt;
@@ -320,9 +320,9 @@ public class Iiixmish2 {
                     ureg[c] = (d == 0 ? (ureg[a] % ureg[b]) : (int)(Integer.toUnsignedLong(ureg[a]) % Integer.toUnsignedLong(ureg[b])));
                 }
                 /* NOP */
-                else if(instr == NOP) {
+                else if(instr == NOP && pc >= unpriv) {
                     Thread.sleep(2);
-                    ticks += 1000;
+                    ticks += 500;
                 }
                 /* битовые операции */
                 else if(instr == LSHIFT) {
