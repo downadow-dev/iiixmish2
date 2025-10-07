@@ -288,7 +288,7 @@ public class Iiixmish2 {
                     if(pc >= unpriv && ureg[c] < unpriv)
                         continue; /* code protection */
                     
-                    flag = (byte)ureg[b];
+                    flag = (byte)(ureg[b] != 0 ? 1 : 0);
                     pc = ureg[c] - 1;
                 }
                 else if(instr == CALL) {
