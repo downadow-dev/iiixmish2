@@ -320,9 +320,9 @@ public class Iiixmish2 {
                     ureg[c] = (d == 0 ? (ureg[a] % ureg[b]) : (int)(Integer.toUnsignedLong(ureg[a]) % Integer.toUnsignedLong(ureg[b])));
                 }
                 /* NOP */
-                else if(instr == NOP && pc >= unpriv) {
+                else if(instr == NOP) {
                     Thread.sleep(2);
-                    ticks += 500;
+                    if(pc >= unpriv) ticks += 500;
                 }
                 /* битовые операции */
                 else if(instr == LSHIFT) {
