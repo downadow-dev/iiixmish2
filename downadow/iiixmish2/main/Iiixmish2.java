@@ -121,16 +121,17 @@ public class Iiixmish2 {
     }
     static void memExec() {
         int ticks = 0;
-        for(; pc < Iiixmish2.mem.length; pc++) {
+        for(; pc >= 0; pc++) {
             try {
+                if(pc >= mem.length) pc = 3;
                 if(pc >= unpriv) ticks++;
-                if(pc >= unpriv && ticks >= 5000) {
+                if(pc < 3 || mem[pc] >= 0) continue;
+                if(pc >= unpriv && ticks >= 2000) {
                     offPC = pc;
                     savedflag = flag;
                     pc = interrupt;
                     ticks = 0;
                 }
-                if(pc < 3 || mem[pc] >= 0) continue;
                 int a = mem[pc - 1] & 0x7fffffff;
                 int b = (-mem[pc]) >> 11;
                 int c = ((-mem[pc]) >> 6) & 0x1f;
@@ -278,6 +279,8 @@ public class Iiixmish2 {
                 }
                 /* OFF */
                 else if(instr == OFF && pc >= unpriv) {
+                    offPC = pc + 1;
+                    savedflag = flag;
                     pc = syscall - 1;
                 } else if(instr == OFF) {
                     ureg[b] = savedflag;
@@ -290,7 +293,6 @@ public class Iiixmish2 {
                     
                     flag = (byte)(ureg[b] != 0 ? 1 : 0);
                     pc = ureg[c] - 1;
-                    if(ticks >= 2000) ticks = 5000;
                 }
                 else if(instr == CALL) {
                     if(pc >= unpriv && a < unpriv)
@@ -298,7 +300,6 @@ public class Iiixmish2 {
                     
                     ureg[b] = pc + 1;
                     pc = a - 1;
-                    if(ticks >= 2000) ticks = 5000;
                 }
                 /* ещё команды */
                 else if(instr == MUL) {
