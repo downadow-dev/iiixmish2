@@ -290,6 +290,7 @@ public class Iiixmish2 {
                     
                     flag = (byte)(ureg[b] != 0 ? 1 : 0);
                     pc = ureg[c] - 1;
+                    if(ticks >= 2000) ticks = 5000;
                 }
                 else if(instr == CALL) {
                     if(pc >= unpriv && a < unpriv)
@@ -297,6 +298,7 @@ public class Iiixmish2 {
                     
                     ureg[b] = pc + 1;
                     pc = a - 1;
+                    if(ticks >= 2000) ticks = 5000;
                 }
                 /* ещё команды */
                 else if(instr == MUL) {
