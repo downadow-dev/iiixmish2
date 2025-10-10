@@ -123,7 +123,7 @@ public class Iiixmish2 {
         int ticks = 0;
         for(; pc >= 0; pc++) {
             try {
-                if(pc >= mem.length) pc = 3;
+                if(pc >= mem.length) pc = mem.length - 1;
                 if(pc >= unpriv) ticks++;
                 if(pc < 3 || mem[pc] >= 0) continue;
                 if(pc >= unpriv && ticks >= 2000) {
