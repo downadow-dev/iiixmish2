@@ -268,7 +268,7 @@ public class Iiixmish2 {
                     if(pc >= unpriv && addr < unpriv)
                         continue; /* memory protection */
                     
-                    ureg[b] = (Iiixmish2.mem[addr] >> (24 - a % 4 * 8)) & 0xff;
+                    ureg[b] = (Iiixmish2.mem[addr] >>> (24 - a % 4 * 8)) & 0xff;
                 }
                 else if(instr == RILD && d == 0) {
                     ureg[a] -= c;
@@ -285,7 +285,7 @@ public class Iiixmish2 {
                     if(pc >= unpriv && addr < unpriv)
                         continue; /* memory protection */
                     
-                    ureg[b] = (Iiixmish2.mem[addr] >> (24 - ureg[a] % 4 * 8)) & 0xff;
+                    ureg[b] = (Iiixmish2.mem[addr] >>> (24 - ureg[a] % 4 * 8)) & 0xff;
                 }
                 /* условия */
                 else if(instr == IFA) {
